@@ -640,46 +640,71 @@ function rPosScreen(){
 }
 function rPosMiniField(team){
   var fld=document.getElementById('pos-field');fld.innerHTML='';
-  fld.style.cssText='border:2px solid #1a6b1a;border-radius:8px;overflow:hidden;background:#1a3d0a;width:100%';
-  // Rows for this team: team1 defends bottom (GOL row9 + rows 8,7,6,5), team2 defends top (GOL row0 + rows 1,2,3,4)
-  // Each team only sees their own half: 1 GOL row + 4 field rows = 5 rows total
+  // Use same classes as game field for consistent sizing
+  fld.className='field-outer';
+  fld.style.cssText='';
   var rows=team===1?[9,8,7,6,5]:[0,1,2,3,4];
-  rows.forEach(function(r){
+  // GOL row first
+  var golRowEl=document.createElement('div');golRowEl.className='gol-row';
+  var golR=team===1?9:0;
+  for(var gc=0;gc<5;gc++){
+    var gcell=document.createElement('div');
+    if(gc===2){
+      gcell.className='cell gol-cell';
+      var gz=document.createElement('span');gz.className='zlb';gz.textContent='GOL';gcell.appendChild(gz);
+      G.pl.filter(function(p){return p.r===golR&&p.c===2&&p.team===team;}).forEach(function(pl){
+        var pc=makePosCircle(pl,team);gcell.appendChild(pc);
+      });
+      (function(rr,cc){gcell.onclick=function(){onPosClick(rr,cc,team);};})(golR,2);
+    } else {
+      gcell.className='cell empty-cell';
+    }
+    golRowEl.appendChild(gcell);
+  }
+  fld.appendChild(golRowEl);
+  // Field rows (skip GOL row)
+  var fieldRows=rows.filter(function(r){return r!==golR;});
+  fieldRows.forEach(function(r){
     var row=document.createElement('div');row.className='field-row';
-    var cols=team===1?[4,3,2,1,0]:[0,1,2,3,4];cols.forEach(function(c){
+    var cols=team===1?[4,3,2,1,0]:[0,1,2,3,4];
+    cols.forEach(function(c){
       var cell=document.createElement('div');
-      var gol=isGol(r,c),emp=isEmpty(r,c);
-      var bg=emp?'rgba(0,0,0,0.4)':gol?'rgba(255,255,255,0.12)':(r%2===0?'rgba(30,80,20,0.4)':'rgba(20,60,10,0.3)');
+      var emp=isEmpty(r,c);
+      var zn1=szn(r,c,1),zn2c=szn(r,c,2);
+      var zclass=zn1===1||zn2c===1?' z1c':zn1===2||zn2c===2?' z2c':zn1===3||zn2c===3?' z3c':'';
+      cell.className='cell'+(r%2===0?' r-even':' r-odd')+zclass+(emp?' empty-cell':'');
       if(posSelP&&posSelP.team===team&&!emp){
+        var gol=isGol(r,c);
         var valid=gol?(posSelP.pos==='GOL'):(inBounds(r,c)&&cellValid(r,c,allPos(posSelP)));
         var occ=G.pl.some(function(p){return p.r===r&&p.c===c&&p.team===team;});
-        if(valid&&!occ)bg='rgba(63,210,140,0.4)';
+        if(valid&&!occ)cell.classList.add('t-mv');
       }
-      cell.style.cssText='position:relative;aspect-ratio:'+(gol?'1/0.4':'1/1')+';border:0.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1px;padding:2px;background:'+bg;
       if(!emp){
-        var dl=gol?'GOL':((GRID[r]&&GRID[r][c])||'');
-        if(dl){var z=document.createElement('span');z.style.cssText='position:absolute;top:1px;left:2px;font-size:6px;color:rgba(255,255,255,0.45);pointer-events:none';z.textContent=dl;cell.appendChild(z);}
+        var dl=isGol(r,c)?'GOL':((GRID[r]&&GRID[r][c])||'');
+        if(dl){var z=document.createElement('span');z.className='zlb';z.textContent=dl;cell.appendChild(z);}
       }
       G.pl.filter(function(p){return p.r===r&&p.c===c&&p.team===team;}).forEach(function(pl){
-        var pc=document.createElement('div');
-        pc.style.cssText='width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:5.5px;font-weight:700;border:1.5px solid rgba(255,255,255,0.5);cursor:pointer;background:'+(team===1?'linear-gradient(135deg,#0d47a1,#1976d2)':'linear-gradient(135deg,#b71c1c,#e53935)')+';color:#fff';
-        pc.textContent=pl.name.split(' ')[0].substring(0,5);
-        (function(pid){pc.onclick=function(e){e.stopPropagation();posSelP=G.pl.find(function(x){return x.id===pid;});rPosScreen();};})(pl.id);
-        cell.appendChild(pc);
+        cell.appendChild(makePosCircle(pl,team));
       });
-      if(!emp)(function(rr,cc){
-        cell.onclick=function(){
-          if(!posSelP||posSelP.team!==team)return;
-          var validClick=isGol(rr,cc)?(posSelP.pos==='GOL'):(inBounds(rr,cc)&&cellValid(rr,cc,allPos(posSelP)));
-          if(!validClick){lg('Posição inválida.');return;}
-          if(G.pl.some(function(p){return p.r===rr&&p.c===cc&&p.team===team;})){lg('Casa ocupada.');return;}
-          posSelP.r=rr;posSelP.c=cc;posSelP=null;rPosScreen();
-        };
-      })(r,c);
+      if(!emp)(function(rr,cc){cell.onclick=function(){onPosClick(rr,cc,team);};})(r,c);
       row.appendChild(cell);
     });
     fld.appendChild(row);
   });
+}
+function makePosCircle(pl,team){
+  var pc=document.createElement('div');
+  pc.className='piece '+(team===1?'p1':'p2');
+  pc.textContent=pl.name.split(' ')[0].substring(0,5);
+  (function(pid){pc.onclick=function(e){e.stopPropagation();posSelP=G.pl.find(function(x){return x.id===pid;});rPosScreen();};})(pl.id);
+  return pc;
+}
+function onPosClick(rr,cc,team){
+  if(!posSelP||posSelP.team!==team)return;
+  var validClick=isGol(rr,cc)?(posSelP.pos==='GOL'):(inBounds(rr,cc)&&cellValid(rr,cc,allPos(posSelP)));
+  if(!validClick){lg('Posição inválida.');return;}
+  if(G.pl.some(function(p){return p.r===rr&&p.c===cc&&p.team===team;})){lg('Casa ocupada.');return;}
+  posSelP.r=rr;posSelP.c=cc;posSelP=null;rPosScreen();
 }
 function autoPos(){
   var t=G.posTeam,team=t+1,form=FORMATIONS[G.formations[t]];
