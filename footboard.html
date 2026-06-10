@@ -1156,23 +1156,37 @@ function doSameCellTransfer(type){
   }
 }
 
-function doTackle(r,c){
+function doTackle(r,c,withCarrinho){
   var s=sp();if(!s)return;
   var b=bp();if(!b||b.team===G.at||b.r!==r||b.c!==c)return;
-  var same=s.r===r&&s.c===c,adj=orth(s.r,s.c,r,c)&&hasSk(s,'antecipacao');
+  // Normal desarme: same cell, or adjacent with Antecipação
+  var same=s.r===r&&s.c===c;
+  var adj=orth(s.r,s.c,r,c)&&hasSk(s,'antecipacao');
   if(!same&&!adj){lg('Precisa mesma casa (ou adj. c/ Antecipação).');return;}
   var na=G.auras.find(function(a){return a.id==='FCG-035'&&a.pid===b.id;});
   if(na){G.auras=G.auras.filter(function(a){return a!==na;});lg('No Auge! bola mantida.');return;}
   if(b.nbs){lg('Bola protegida.');return;}
   if(!avail(1,s.id)){lg('Sem ações!');return;}
   spend(1,s.id);
-  if(hasSk(s,'carrinho')){
+  if(withCarrinho){
+    // Carrinho: roll d6 — 1 means foul on self
     var rd=d6();
-    if(rd===1){applyYellow(s);lg('Carrinho: dado 1 → Falta!');G.bh=s.id;executeFoul(s,b.team,b.r,b.c);return;}
+    if(rd===1){
+      applyYellow(s);
+      lg('Carrinho: dado 1 → Falta! Amarelo em '+s.name+'.');
+      G.bh=s.id;
+      executeFoul(s,b.team,b.r,b.c);
+      return;
+    }
+    // Success — get ball, choose where to push tackled player
     G.bh=s.id;
-    lg('Carrinho: dado '+rd+'. Arraste '+b.name+'.');
-    G.modal={type:'carrinho_push',tacklerId:s.id,tackledId:b.id};render();return;
+    delete G.marcimplAttached[s.id];
+    lg('Carrinho! '+s.name+' desarma '+b.name+' (dado '+rd+'). Escolha onde empurrar.');
+    G.modal={type:'carrinho_push',tacklerId:s.id,tackledId:b.id};
+    render();
+    return;
   }
+  // Normal desarme
   G.bh=s.id;
   lg(s.name+' desarma '+b.name+'!');
   delete G.marcimplAttached[s.id];
@@ -1325,7 +1339,8 @@ function hCell(r,c){
   if(G.mode==='move'){doMove(r,c);return;}
   if(G.mode==='short'||G.mode==='long'){doPass(r,c,G.mode);return;}
   if(G.mode==='shoot'){declShoot(r,c);return;}
-  if(G.mode==='tackle'){doTackle(r,c);return;}
+  if(G.mode==='tackle'){doTackle(r,c,false);return;}
+  if(G.mode==='tackle_c'){doTackle(r,c,true);return;}
   if(G.mode==='foul'){doCommitFoul();return;}
   if(G.mode==='fp'){doFP(r,c);return;}
   if(G.mode==='aura'){selAura(r,c);return;}
@@ -1763,6 +1778,10 @@ function render(){
     btn('P.Longo',function(){G.mode=G.mode==='long'?null:'long';render();},'',!hasBall);
     btn(shotLbl,function(){G.mode=G.mode==='shoot'?null:'shoot';render();},'red',!hasBall||!inZ);
     btn('Desarme',function(){G.mode=G.mode==='tackle'?null:'tackle';render();},'warn',!hasS||bpMine||!b);
+    if(s&&hasSk(s,'carrinho')){
+      var carAdj=b&&(s.r===b.r&&s.c===b.c||( orth(s.r,s.c,b.r,b.c)&&hasSk(s,'antecipacao')));
+      btn('Carrinho!',function(){G.mode=G.mode==='tackle_c'?null:'tackle_c';render();},'warn',!carAdj||bpMine||!b);
+    }
     btn('Falta',function(){G.mode=G.mode==='foul'?null:'foul';render();},'warn',!hasS||bpMine||!b);
     if(G.freePass)btn('Passe Livre (grátis)',function(){G.mode=G.mode==='fp'?null:'fp';render();},'grn',!hasBall);
     // Same cell transfer
@@ -1779,7 +1798,7 @@ function render(){
     // Mode indicator
     if(G.mode){
       var mi2=document.createElement('div');mi2.style.cssText='font-size:10px;color:#ffd740;margin-bottom:4px';
-      var modeNames={move:'Mover',short:'Passe Curto',long:'Passe Longo',shoot:'Chute',tackle:'Desarme',foul:'Cometer Falta',fp:'Passe Livre'};
+      var modeNames={move:'Mover',short:'Passe Curto',long:'Passe Longo',shoot:'Chute',tackle:'Desarme',tackle_c:'Carrinho!',foul:'Cometer Falta',fp:'Passe Livre'};
       mi2.textContent='Modo: '+( modeNames[G.mode]||G.mode)+' — clique no campo';
       tc.appendChild(mi2);
     }
@@ -1903,7 +1922,7 @@ function renderField(){
         if(validPass&&hasAlly)cl.classList.add('t-ps');
       }
       if(s&&s.id===G.bh&&G.mode==='shoot'&&s.r===r&&s.c===cc&&szn(r,cc,G.at)>0)cl.classList.add('t-sh');
-      if(s&&G.mode==='tackle'&&b&&b.r===r&&b.c===cc&&b.team!==G.at){
+      if(s&&(G.mode==='tackle'||G.mode==='tackle_c')&&b&&b.r===r&&b.c===cc&&b.team!==G.at){
         var same2=s.r===r&&s.c===cc,adj2=orth(s.r,s.c,r,cc)&&hasSk(s,'antecipacao');
         if(same2||adj2)cl.classList.add('t-tk');
       }
@@ -2145,8 +2164,15 @@ function resolvePenalty(bt){
   var dr=d6();
   var pegp=hasSk(goalie,'pegpenalti');
   var defended=(dr===ar)||(pegp&&dr===ar-1);
-  if(defended){lg('Pênalti: atk='+ar+' def='+dr+' → Defendido!');if(goalie)G.bh=goalie.id;doNext();}
-  else{lg('Pênalti: atk='+ar+' def='+dr+' → GOL!');goalScored(bt);}
+  if(defended){
+    lg('Pênalti: atk='+ar+' def='+dr+' → Defendido!');
+    if(goalie)G.bh=goalie.id;
+    G.at=bt===1?2:1;
+    nextTurn();
+  } else {
+    lg('Pênalti: atk='+ar+' def='+dr+' → GOL!');
+    goalScored(bt);
+  }
 }
 function chooseFKShooter(idx,bt,fr,fc,zone){
   G.modal={type:'free_kick',bt:bt,fr:fr,fc:fc,zone:zone,shooterIdx:idx};
@@ -2164,8 +2190,15 @@ function resolveFreeKick(bt,fr,fc,zone,shooterId){
   var dr=d6();
   var goal=atk>=dr;
   lg('Falta'+(shooter?' ('+shooter.name+')':'')+': atk='+ar+(am>=0?'+':'')+am+'='+atk+' vs def='+dr+' → '+(goal?'GOL!':'Defendida!'));
-  if(goal)goalScored(bt);
-  else{if(goalie)G.bh=goalie.id;doNext();}
+  if(goal){goalScored(bt);}
+  else{
+    // Goalie defends — ball with goalie, end foul-kicker's turn normally
+    if(goalie)G.bh=goalie.id;
+    lg('Falta defendida. Bola com '+( goalie?goalie.name:'goleiro')+'.');
+    // End turn of the team that committed the foul (opposite of bt)
+    G.at=bt===1?2:1; // set active to foul team so nextTurn/doNext works correctly
+    nextTurn();
+  }
 }
 function resolveFreeKickIdx(bt,fr,fc,zone,shooterIdx){
   var fkPlayers=G.pl.filter(function(p){return p.team===bt&&!p.susp&&p.r>=1&&p.r<=8;});
