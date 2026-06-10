@@ -4,7 +4,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color:#e6edf3}
-#app{padding:8px;max-width:100%;width:100%;margin:0 auto;box-sizing:border-box}
+#app{padding:12px;max-width:100%;width:100%;margin:0 auto;box-sizing:border-box}
 .hud{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;margin-bottom:6px;align-items:center}
 .score-side{background:linear-gradient(135deg,#0d2137,#1a3a5c);border-radius:10px;padding:8px 12px;text-align:center;border:1px solid rgba(100,180,255,0.2)}
 .score-side.red{background:linear-gradient(135deg,#2a0a0a,#5c1a1a)}
@@ -32,8 +32,8 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 .t-ps{background:rgba(250,199,117,0.38)!important;box-shadow:inset 0 0 0 1.5px rgba(250,199,117,0.8)}
 .t-sh{background:rgba(255,80,80,0.35)!important;box-shadow:inset 0 0 0 1.5px rgba(255,80,80,0.8)}
 .t-tk{background:rgba(220,60,130,0.32)!important;box-shadow:inset 0 0 0 1.5px rgba(220,60,130,0.8)}
-.zlb{position:absolute;top:2px;left:3px;font-size:9px;color:rgba(255,255,255,0.4);pointer-events:none;font-weight:700}
-.ztg{position:absolute;bottom:2px;right:3px;font-size:9px;font-weight:900;pointer-events:none}
+.zlb{position:absolute;top:1px;left:2px;font-size:7px;color:rgba(255,255,255,0.4);pointer-events:none;font-weight:700}
+.ztg{position:absolute;bottom:1px;right:2px;font-size:7px;font-weight:900;pointer-events:none}
 .z1t{color:#ff8a80}.z2t{color:#ffd740}.z3t{color:#69f0ae}
 
 /* PIECES */
@@ -93,9 +93,9 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 
 /* SETUP SCREENS */
 .sw{background:#161b22;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)}
-.db-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.db-list{max-height:200px;overflow-y:auto}
-.db-row{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border:1px solid rgba(255,255,255,0.08);border-radius:4px;margin-bottom:2px;font-size:9px;background:rgba(255,255,255,0.03);color:#ccc}
+.db-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.db-list{max-height:400px;overflow-y:auto}
+.db-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;margin-bottom:4px;font-size:12px;background:rgba(255,255,255,0.03);color:#ccc}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
 .form-card{border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;cursor:pointer;font-size:9px;text-align:left;background:rgba(255,255,255,0.03);color:#aaa}
 .form-card:hover{border-color:#58a6ff;background:rgba(88,166,255,0.08)}
@@ -144,6 +144,14 @@ body{margin:0;padding:0}
 .pos-outer{display:grid;grid-template-columns:280px 1fr;gap:10px;padding:8px;height:100vh;box-sizing:border-box}
 .pos-field-col{display:flex;flex-direction:column;gap:6px}
 .pos-panel-col{overflow-y:auto}
+
+/* CARD TOOLTIP */
+.card{position:relative}
+.card-tooltip{display:none;position:fixed;z-index:1000;background:#1c2230;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 12px;max-width:220px;font-size:11px;color:#e6edf3;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.7);pointer-events:none}
+.card-tooltip .tt-name{font-weight:700;font-size:13px;color:#fff;margin-bottom:4px}
+.card-tooltip .tt-type{font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px}
+.card-tooltip .tt-desc{color:rgba(255,255,255,0.8)}
+.card:hover .card-tooltip{display:block}
 </style>
 </head><body>
 
@@ -279,6 +287,37 @@ body{margin:0;padding:0}
 </div>
 
 <div id="mr"></div>
+<div id="global-tooltip" style="display:none;position:fixed;z-index:9999;background:#1c2230;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 12px;max-width:240px;font-size:11px;color:#e6edf3;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.7);pointer-events:none"></div>
+
+<script>
+// Global tooltip for cards
+document.addEventListener('mouseover', function(e){
+  var card=e.target.closest('.card');
+  var tt=document.getElementById('global-tooltip');
+  if(!card||!tt){if(tt)tt.style.display='none';return;}
+  var cn=card.querySelector('.cn'),cd=card.querySelector('.cd'),ct=card.querySelector('.ct'),cc=card.querySelector('.cc');
+  if(!cn)return;
+  tt.innerHTML='<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:3px">'+(cn?cn.textContent:'')+'</div>'
+    +'<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px">'+(ct?ct.textContent:'')+' · '+(cc?cc.textContent:'')+(card.classList.contains('imm')?' · Imediata':'')+'</div>'
+    +'<div style="color:rgba(255,255,255,0.85)">'+(cd?cd.textContent:'')+'</div>';
+  tt.style.display='block';
+});
+document.addEventListener('mouseout', function(e){
+  var card=e.target.closest('.card');
+  if(!card)return;
+  var tt=document.getElementById('global-tooltip');
+  if(tt)tt.style.display='none';
+});
+document.addEventListener('mousemove', function(e){
+  var tt=document.getElementById('global-tooltip');
+  if(!tt||tt.style.display==='none')return;
+  var x=e.clientX+14,y=e.clientY+14;
+  if(x+250>window.innerWidth) x=e.clientX-260;
+  if(y+150>window.innerHeight) y=e.clientY-160;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
+});
+</script>
 
 <script>
 // ==============================================
@@ -2170,7 +2209,8 @@ function render(){
       c2.className='card'+(card.type==='i'?' imm':card.type==='a'?' aur':'');
       if(G.discardPending&&G.discardPending.teamIdx===hi)c2.classList.add('disc-pick');
       var tn=card.type==='a'?'AURA':card.type==='i'?'IMEDIATA':'COMUM';
-      c2.innerHTML='<div class="cn">'+card.name+'</div><div class="ct">'+tn+'</div><div class="cd">'+card.desc+'</div><div class="cc">'+card.cost+'⚡</div>';
+      c2.innerHTML='<div class="cn">'+card.name+'</div><div class="ct">'+tn+'</div><div class="cd">'+card.desc+'</div><div class="cc">'+card.cost+'⚡</div>'
+        +'<div class="card-tooltip"><div class="tt-name">'+card.name+'</div><div class="tt-type">'+tn+' · '+card.cost+'⚡'+(card.paral?' · Paralisa!':'')+'</div><div class="tt-desc">'+card.desc+'</div></div>';
       if(G.discardPending&&G.discardPending.teamIdx===hi){
         c2.onclick=function(){discardCard(card.uid,hi);};
       } else if(hi===ti()&&!G.rw){
