@@ -51,9 +51,9 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 .panel{background:#161b22;border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.08)}
 /* GAME LAYOUT */
 .game-outer{display:flex;flex-direction:column;height:100vh;padding:6px;gap:6px;box-sizing:border-box;overflow:hidden}
-.game-wrap{display:grid;grid-template-columns:auto 1fr;gap:10px;flex:1;min-height:0;overflow:hidden;align-items:start}
-.field-col{display:flex;flex-direction:column}
-.panel-col{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0;max-width:340px}
+.game-wrap{display:flex;flex-direction:row;gap:10px;flex:1;min-height:0;overflow:hidden;align-items:start}
+.field-col{flex-shrink:0}
+.panel-col{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0;min-width:240px;max-width:360px}
 .tabs{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
 .tab{padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);font-size:10px;cursor:pointer;color:rgba(255,255,255,0.6)}
 .tab.on{background:#0d47a1;color:#fff;border-color:#1976d2;font-weight:700}
