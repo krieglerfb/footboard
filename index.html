@@ -14,7 +14,7 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 .score-mid b{color:#fff;font-size:12px}
 
 /* FIELD */
-.field-outer{border:2px solid #1a6b1a;border-radius:10px;overflow:hidden;background:#1a3d0a;box-shadow:0 6px 30px rgba(0,0,0,0.6);max-width:480px;margin:0 auto;width:100%}
+.field-outer{border:2px solid #1a6b1a;border-radius:10px;overflow:hidden;background:#1a3d0a;box-shadow:0 6px 30px rgba(0,0,0,0.6);width:100%}
 .gol-row{display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,0.04)}
 .field-rows{position:relative}
 .field-row{display:grid;grid-template-columns:repeat(5,1fr)}
@@ -130,13 +130,20 @@ body{margin:0;padding:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* GAME */
-#game-screen{display:none}
-.game-wrap{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px;align-items:start}
-.field-col{}
-.panel-col{min-width:260px;max-width:320px}
-.myturn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;margin-bottom:6px;text-align:center}
+#game-screen{display:none;height:100vh;box-sizing:border-box;overflow:hidden}
+.game-outer{display:flex;flex-direction:column;height:100vh;padding:6px;gap:6px;box-sizing:border-box}
+.game-wrap{display:grid;grid-template-columns:280px 1fr;gap:10px;flex:1;overflow:hidden;min-height:0}
+.field-col{display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.field-col .field-outer{max-width:280px;width:280px;flex-shrink:0}
+.panel-col{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.panel-col .panel{flex:1}
+.myturn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;text-align:center;flex-shrink:0}
 .myturn.yes{background:rgba(86,211,100,0.15);color:#56d364;border:1px solid rgba(86,211,100,0.3)}
 .myturn.no{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.08)}
+/* Pos screen layout */
+.pos-outer{display:grid;grid-template-columns:280px 1fr;gap:10px;padding:8px;height:100vh;box-sizing:border-box}
+.pos-field-col{display:flex;flex-direction:column;gap:6px}
+.pos-panel-col{overflow-y:auto}
 </style>
 </head><body>
 
@@ -154,6 +161,8 @@ body{margin:0;padding:0}
     <div id="lhome">
       <button class="lbtn blue" onclick="showCreate()">Criar Sala</button>
       <button class="lbtn gray" onclick="showJoin()">Entrar em Sala</button>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:8px 0">
+      <button class="lbtn gray" onclick="window.location.href='footboard.html'" style="opacity:.75">🎮 Jogar Offline</button>
     </div>
 
     <!-- CREATE -->
@@ -212,49 +221,57 @@ body{margin:0;padding:0}
 </div>
 
 <!-- POS SCREEN -->
-<div id="pos-screen" style="display:none;padding:12px" class="sw">
-  <h2 style="font-size:14px;margin-bottom:4px;color:#fff">⚽ Posicionamento — <span id="pos-tname"></span></h2>
-  <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:6px;background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px" id="pos-info">Selecione um jogador e clique na casa válida.</div>
-  <div class="pos-plist" id="pos-plist"></div>
-  <div id="pos-field" style="margin-bottom:8px;max-width:480px"></div>
-  <div style="display:flex;gap:6px;justify-content:center">
-    <button class="btn warn" onclick="autoPos()">Auto-posicionar</button>
-    <button class="btn grn" id="pos-ok" onclick="onlineConfirmPos()">Confirmar ✓</button>
-  </div>
-  <div id="pos-wait" style="display:none;text-align:center;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.45)">
-    <span class="dot"></span>Aguardando adversário posicionar...
+<div id="pos-screen" style="display:none">
+  <div class="pos-outer">
+    <div class="pos-field-col">
+      <h2 style="font-size:13px;color:#fff;margin-bottom:4px">⚽ <span id="pos-tname"></span></h2>
+      <div id="pos-field" style="max-width:280px;width:280px"></div>
+    </div>
+    <div class="pos-panel-col">
+      <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:8px;background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px" id="pos-info">Selecione um jogador e clique na casa válida.</div>
+      <div class="pos-plist" id="pos-plist"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn warn" onclick="autoPos()">Auto-posicionar</button>
+        <button class="btn grn" id="pos-ok" onclick="onlineConfirmPos()">Confirmar ✓</button>
+      </div>
+      <div id="pos-wait" style="display:none;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.45)">
+        <span class="dot"></span>Aguardando adversário posicionar...
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- GAME SCREEN -->
 <div id="game-screen" style="display:none">
-  <div class="hud" style="padding:8px 8px 0">
-    <div class="score-side"><div class="score-name">⬤ TIME AZUL</div><div class="score-num" id="s1">0</div><div style="font-size:9px;color:rgba(255,255,255,0.5)" id="sb1">Subs: 3</div></div>
-    <div class="score-mid"><b id="tl">T1/30</b><br><span id="hl">1º Tempo</span><br><span id="al" style="color:#58a6ff">Pool: 2</span></div>
-    <div class="score-side red"><div class="score-name">⬤ TIME VERM.</div><div class="score-num" id="s2">0</div><div style="font-size:9px;color:rgba(255,255,255,0.5)" id="sb2">Subs: 3</div></div>
-  </div>
-  <div class="game-wrap">
-    <div class="field-col">
-      <div class="field-outer">
-        <div class="gol-row" id="gol-top"></div>
-        <div class="field-rows" id="frows"></div>
-        <div class="gol-row" id="gol-bot"></div>
-      </div>
+  <div class="game-outer">
+    <div class="hud">
+      <div class="score-side"><div class="score-name">⬤ TIME AZUL</div><div class="score-num" id="s1">0</div><div style="font-size:9px;color:rgba(255,255,255,0.5)" id="sb1">Subs: 3</div></div>
+      <div class="score-mid"><b id="tl">T1/30</b><br><span id="hl">1º Tempo</span><br><span id="al" style="color:#58a6ff">Pool: 2</span></div>
+      <div class="score-side red"><div class="score-name">⬤ TIME VERM.</div><div class="score-num" id="s2">0</div><div style="font-size:9px;color:rgba(255,255,255,0.5)" id="sb2">Subs: 3</div></div>
     </div>
-    <div class="panel-col">
-      <div id="turn-banner" class="myturn no">⏳ Turno do adversário</div>
-      <div class="panel">
-        <div class="tabs">
-          <div class="tab on" id="ta"  onclick="setTab('a')">Ações</div>
-          <div class="tab"    id="th0" onclick="setTab('h0')">Minha Mão</div>
-          <div class="tab"    id="ts"  onclick="setTab('s')">Subs</div>
+    <div class="game-wrap">
+      <div class="field-col">
+        <div class="field-outer">
+          <div class="gol-row" id="gol-top"></div>
+          <div class="field-rows" id="frows"></div>
+          <div class="gol-row" id="gol-bot"></div>
         </div>
-        <div id="rb"           style="display:none" class="rb"></div>
-        <div id="disc-banner"  style="display:none" class="disc-banner"></div>
-        <div class="chips"     id="chips"></div>
-        <div id="pi"></div>
-        <div id="tc"></div>
-        <div class="log"       id="log"></div>
+      </div>
+      <div class="panel-col">
+        <div id="turn-banner" class="myturn no">⏳ Turno do adversário</div>
+        <div class="panel">
+          <div class="tabs">
+            <div class="tab on" id="ta"  onclick="setTab('a')">Ações</div>
+            <div class="tab"    id="th0" onclick="setTab('h0')">Minha Mão</div>
+            <div class="tab"    id="ts"  onclick="setTab('s')">Subs</div>
+          </div>
+          <div id="rb"           style="display:none" class="rb"></div>
+          <div id="disc-banner"  style="display:none" class="disc-banner"></div>
+          <div class="chips"     id="chips"></div>
+          <div id="pi"></div>
+          <div id="tc"></div>
+          <div class="log"       id="log"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -347,7 +364,12 @@ function joinRoom(){
     if(!snap.exists()){ _err('Sala não encontrada.'); return; }
     var room=snap.val();
     if(room.phase!=='waiting'){ _err('Sala já em andamento.'); return; }
-    if(room.host===_joinTeam){ _err('Time já ocupado. Escolha o outro.'); return; }
+    if(room.host===_joinTeam){
+      _err('Time já ocupado! O criador escolheu esse time. Escolha o outro.');
+      // Auto-switch to the other team
+      jpickT(_joinTeam===1?2:1);
+      return;
+    }
     ME.room=code; ME.team=_joinTeam;
     // Signal host that guest joined
     db.ref('rooms/'+code+'/phase').set('deck').then(function(){
@@ -367,44 +389,69 @@ function _goToDeck(){
   showScreen('db-screen');
   document.getElementById('db-tname').textContent=ME.team===1?'Time Azul':'Time Vermelho';
   rDB();
-  // Watch for other player's deck ready
-  _listen('rooms/'+ME.room+'/deckReady', function(snap){
-    var dr=snap.val()||[false,false];
-    if(dr[0]&&dr[1]){
-      _stopListeners();
-      _initAndGoToPos();
-    }
-  });
+  // deckReady now watched in onlineConfirmDeck
 }
 
 function onlineConfirmDeck(){
   if(G.dbD[ME.team-1].length!==30){ alert('Monte exatamente 30 cartas!'); return; }
   document.getElementById('db-ok').disabled=true;
-  // Save deck privately (only this client needs it)
-  // Mark ready in Firebase
+  document.getElementById('db-wait').style.display='block';
+  // Mark my deck ready in Firebase
   var update={};
   update['deckReady/'+(ME.team-1)]=true;
-  db.ref('rooms/'+ME.room).update(update).then(function(){
-    document.getElementById('db-wait').style.display='block';
+  db.ref('rooms/'+ME.room).update(update);
+  // Set up my local game state immediately (my deck is ready)
+  _setupMyGameState();
+  // Watch for opponent deck ready, then go to positioning
+  var deckRef=db.ref('rooms/'+ME.room+'/deckReady');
+  deckRef.on('value', function(snap){
+    var dr=snap.val()||[false,false];
+    if(dr[0]&&dr[1]){
+      deckRef.off('value');
+      document.getElementById('db-wait').style.display='none';
+      _goToPos();
+    }
   });
+}
+
+function _setupMyGameState(){
+  // Initialize game data for my side
+  var myIdx=ME.team-1;
+  G.deck=[shuffle(G.dbD[myIdx].slice()),[]]; // only my deck for now
+  G.hand=[[],[]]; G.disc=[[],[]];
+  G.c10={}; G.usedDrib={}; G.marcimplAttached={}; G.reserve=[0,0];
+  // Set up all players
+  G.pl=[];
+  PP1.forEach(function(pd){
+    var p=JSON.parse(JSON.stringify(pd));
+    p.id=pd.name; p.team=1; p.r=-1; p.c=-1;
+    p.yc=0; p.rc=false; p.susp=false; p.tmp=[];
+    G.pl.push(p);
+  });
+  PP2.forEach(function(pd){
+    var p=JSON.parse(JSON.stringify(pd));
+    p.id=pd.name; p.team=2; p.r=-1; p.c=-1;
+    p.yc=0; p.rc=false; p.susp=false; p.tmp=[];
+    G.pl.push(p);
+  });
+  // Draw my initial hand
+  draw(myIdx, 3);
+}
+
+function _goToPos(){
+  showScreen('pos-screen');
+  G.posTeam=ME.team-1;
+  rPosScreen();
 }
 
 // ==============================================
 // POS PHASE
 // ==============================================
 function _initAndGoToPos(){
-  // Each player only has their own deck locally
-  // Shuffle my deck; opponent's deck is managed on their client
-  var myIdx=ME.team-1;
-  var oppIdx=ME.team===1?1:0;
-  // Use a placeholder for opp deck (will be overwritten by their pushG)
-  if(!G.dbD[oppIdx]||!G.dbD[oppIdx].length){
-    G.dbD[oppIdx]=G.dbD[myIdx].slice(); // placeholder
-  }
-  G.deck=[shuffle(G.dbD[0].slice()),shuffle(G.dbD[1].slice())];
-  G.hand=[[],[]]; G.disc=[[],[]];
-  G.c10={}; G.usedDrib={}; G.marcimplAttached={}; G.reserve=[0,0];
-  draw(myIdx,3); // only draw for my team — opp draws on their client
+  // Legacy: now handled by _setupMyGameState + _goToPos
+  _setupMyGameState();
+  _goToPos();
+  // dummy line to avoid syntax issues
   // Set up players
   G.pl=[];
   PP1.forEach(function(pd){
@@ -437,6 +484,8 @@ function onlineConfirmPos(){
   if(G.pl.filter(function(p){return p.team===team&&p.r<0;}).length>0){
     alert('Posicione todos!'); return;
   }
+  document.getElementById('pos-ok').disabled=true;
+  document.getElementById('pos-wait').style.display='block';
   // Save my positions to Firebase
   var myPos={};
   G.pl.filter(function(p){return p.team===team;}).forEach(function(p){
@@ -445,34 +494,45 @@ function onlineConfirmPos(){
   var update={};
   update['pos/t'+team]=myPos;
   update['posReady/'+(team-1)]=true;
-  db.ref('rooms/'+ME.room).update(update).then(function(){
-    document.getElementById('pos-ok').disabled=true;
-    document.getElementById('pos-wait').style.display='block';
+  db.ref('rooms/'+ME.room).update(update);
+  // Watch for both ready
+  var posRef=db.ref('rooms/'+ME.room+'/posReady');
+  posRef.on('value', function(snap){
+    var pr=snap.val()||[false,false];
+    if(pr[0]&&pr[1]){
+      posRef.off('value');
+      _loadOppPosAndStart();
+    }
   });
 }
 
-function _loadOppPos(){
+function _loadOppPosAndStart(){
   db.ref('rooms/'+ME.room+'/pos').once('value').then(function(snap){
     var pos=snap.val()||{};
-    // Apply opponent positions
-    var opp=ME.team===1?'t2':'t1';
-    if(pos[opp]){
-      Object.keys(pos[opp]).forEach(function(pid){
-        var p=G.pl.find(function(x){return x.id===pid;});
-        if(p){ p.r=pos[opp][pid].r; p.c=pos[opp][pid].c; }
-      });
-    }
-    // Determine who starts (host = team that created room)
+    // Apply BOTH teams' positions (in case we got here before reading opp)
+    ['t1','t2'].forEach(function(tk){
+      if(pos[tk]){
+        Object.keys(pos[tk]).forEach(function(pid){
+          var p=G.pl.find(function(x){return x.id===pid;});
+          if(p){ p.r=pos[tk][pid].r; p.c=pos[tk][pid].c; }
+        });
+      }
+    });
+    // Who starts: host team
     db.ref('rooms/'+ME.room+'/host').once('value').then(function(hs){
       G.pendingBallTeam=hs.val()||1;
       G.at=hs.val()||1;
       placeBallAtCV();
+      // Push initial G if it's my turn
+      if(G.at===ME.team) _pushG();
       showScreen('game-screen');
       _startGameSync();
       render();
     });
   });
 }
+// Keep old name as alias for safety
+function _loadOppPos(){ _loadOppPosAndStart(); }
 
 // ==============================================
 // GAME SYNC
