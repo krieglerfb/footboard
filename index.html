@@ -496,8 +496,8 @@ function onlineConfirmPos(){
   }, 5000);
   // Save my positions to Firebase
   var myPos={};
-  G.pl.filter(function(p){return p.team===team;}).forEach(function(p){
-    myPos[p.id]={r:p.r,c:p.c};
+  G.pl.filter(function(p){return p.team===team;}).forEach(function(p,i){
+    myPos['p'+i]={id:p.id,r:p.r,c:p.c};
   });
   console.log('[FCG] Confirming pos for team', team, myPos);
   // Write positions AND ready flag atomically
@@ -556,9 +556,11 @@ function _loadOppPosAndStart(){
     // Apply BOTH teams' positions (in case we got here before reading opp)
     ['t1','t2'].forEach(function(tk){
       if(pos[tk]){
-        Object.keys(pos[tk]).forEach(function(pid){
-          var p=G.pl.find(function(x){return x.id===pid;});
-          if(p){ p.r=pos[tk][pid].r; p.c=pos[tk][pid].c; }
+        Object.keys(pos[tk]).forEach(function(key){
+          var entry=pos[tk][key];
+          // entry has {id, r, c}
+          var p=G.pl.find(function(x){return x.id===entry.id;});
+          if(p){ p.r=entry.r; p.c=entry.c; }
         });
       }
     });
