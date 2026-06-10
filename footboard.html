@@ -14,12 +14,12 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 
 /* FIELD */
 .field-outer{border:2px solid #1a6b1a;border-radius:10px;overflow:hidden;background:#1a3d0a;box-shadow:0 6px 30px rgba(0,0,0,0.6);max-width:480px;margin:0 auto;width:100%}
-.gol-row{display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,0.04)}
+.gol-row{background:rgba(255,255,255,0.04)}
 .field-rows{position:relative}
-.field-row{display:grid;grid-template-columns:repeat(5,1fr)}
-.cell{position:relative;border:0.5px solid rgba(255,255,255,0.07);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1px;cursor:pointer;padding:2px;transition:background .12s}
+/* field-row now defined in game-wrap section */
+/* cell now defined in game-wrap section */
 .cell:hover{background:rgba(255,255,255,0.08)!important}
-.cell.gol-cell{aspect-ratio:1/0.5;background:rgba(255,255,255,0.10)!important;border:1px solid rgba(255,255,255,0.3)!important;cursor:default}
+/* gol-cell now defined in game-wrap section */
 .cell.gol-cell.active-gol{cursor:pointer}
 .cell.empty-cell{background:rgba(0,0,0,0.5)!important;pointer-events:none}
 .cell.r-even{background:rgba(30,80,20,0.35)}
@@ -51,9 +51,14 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 .panel{background:#161b22;border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.08)}
 /* GAME LAYOUT */
 .game-outer{display:flex;flex-direction:column;height:100vh;padding:6px;gap:6px;box-sizing:border-box;overflow:hidden}
-.game-wrap{display:flex;flex-direction:row;gap:10px;flex:1;min-height:0;overflow:hidden;align-items:start}
-.field-col{flex-shrink:0}
-.panel-col{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0;min-width:240px;max-width:360px}
+.game-wrap{display:flex;flex-direction:row;gap:10px;flex:1;min-height:0;align-items:start}
+.field-col{flex-shrink:0;width:auto}
+.field-col .field-outer{width:auto}
+.field-row{display:grid;grid-template-columns:repeat(5,54px)}
+.gol-row{display:grid;grid-template-columns:repeat(5,54px)}
+.cell{position:relative;width:54px;height:54px;border:0.5px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1px;cursor:pointer;padding:2px;transition:background .12s}
+.cell.gol-cell{width:54px;height:27px}
+.panel-col{flex:1;display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0;min-width:240px;max-width:380px}
 .tabs{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
 .tab{padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);font-size:10px;cursor:pointer;color:rgba(255,255,255,0.6)}
 .tab.on{background:#0d47a1;color:#fff;border-color:#1976d2;font-weight:700}
