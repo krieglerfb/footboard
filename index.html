@@ -335,8 +335,8 @@ function createRoom(){
   var roomData={
     phase:'waiting',
     host: _lobbyTeam,
-    deckReady:[false,false],
-    posReady:[false,false],
+    deckReady:{},
+    posReady:{},
     G: null
   };
   db.ref('rooms/'+code).set(roomData).then(function(){
@@ -398,7 +398,7 @@ function onlineConfirmDeck(){
   document.getElementById('db-wait').style.display='block';
   // Mark my deck ready in Firebase
   var update={};
-  update['deckReady/'+(ME.team-1)]=true;
+  update['deckReady/t'+ME.team]=true; // named key
   db.ref('rooms/'+ME.room).update(update);
   // Set up my local game state immediately (my deck is ready)
   _setupMyGameState();
@@ -406,9 +406,7 @@ function onlineConfirmDeck(){
   var deckRef=db.ref('rooms/'+ME.room+'/deckReady');
   deckRef.on('value', function(snap){
     var raw=snap.val()||{};
-    var dr0=raw[0]||raw['0']||false;
-    var dr1=raw[1]||raw['1']||false;
-    if(dr0&&dr1){
+    if(raw.t1&&raw.t2){
       deckRef.off('value');
       document.getElementById('db-wait').style.display='none';
       _goToPos();
@@ -497,16 +495,14 @@ function onlineConfirmPos(){
   });
   var update={};
   update['pos/t'+team]=myPos;
-  update['posReady/'+(team-1)]=true;
+  update['posReady/t'+team]=true; // use named keys, not array indices
   db.ref('rooms/'+ME.room).update(update);
   // Watch for both ready
   var posRef=db.ref('rooms/'+ME.room+'/posReady');
   posRef.on('value', function(snap){
     var raw=snap.val()||{};
-    // Firebase may return array as object {0:false,1:true}
-    var pr0=raw[0]||raw['0']||false;
-    var pr1=raw[1]||raw['1']||false;
-    if(pr0&&pr1){
+    // Check both teams confirmed using named keys
+    if(raw.t1&&raw.t2){
       posRef.off('value');
       _loadOppPosAndStart();
     }
@@ -1085,7 +1081,7 @@ function rPosScreen(){
 }
 function rPosMiniField(team){
   var fld=document.getElementById('pos-field');fld.innerHTML='';
-  fld.style.cssText='border:2px solid #1a6b1a;border-radius:8px;overflow:hidden;background:#1a3d0a;width:100%;max-width:320px';
+  fld.className='field-outer';fld.style.cssText='';
   // Rows for this team: team1 defends bottom (GOL row9 + rows 8,7,6,5), team2 defends top (GOL row0 + rows 1,2,3,4)
   // Each team only sees their own half: 1 GOL row + 4 field rows = 5 rows total
   var rows=team===1?[9,8,7,6,5]:[0,1,2,3,4];
