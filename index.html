@@ -398,9 +398,10 @@ function onlineConfirmDeck(){
   document.getElementById('db-ok').disabled=true;
   document.getElementById('db-wait').style.display='block';
   // Mark my deck ready in Firebase
-  var update={};
-  update['deckReady/t'+ME.team]=true; // named key
-  db.ref('rooms/'+ME.room).update(update);
+  // Use root-level update for reliability
+  var deckUpdate={};
+  deckUpdate['rooms/'+ME.room+'/deckReady/t'+ME.team]=true;
+  db.ref('/').update(deckUpdate).catch(function(e){console.error('[FCG] deckReady write error:',e);});
   // Set up my local game state immediately (my deck is ready)
   _setupMyGameState();
   // Watch for opponent deck ready, then go to positioning
@@ -500,24 +501,36 @@ function onlineConfirmPos(){
   });
   console.log('[FCG] Confirming pos for team', team, myPos);
   // Write positions AND ready flag atomically
-  db.ref('rooms/'+ME.room+'/pos/t'+team).set(myPos).then(function(){
-    return db.ref('rooms/'+ME.room+'/posReady/t'+team).set(true);
-  }).then(function(){
-    console.log('[FCG] posReady/t'+team+' set to true');
-    // Now watch for both ready
+  // Write all data in one atomic update to avoid partial writes
+  var fullUpdate = {};
+  fullUpdate['rooms/'+ME.room+'/pos/t'+team] = myPos;
+  fullUpdate['rooms/'+ME.room+'/posReady/t'+team] = true;
+  fullUpdate['rooms/'+ME.room+'/posReadyFlat'] = (fullUpdate['rooms/'+ME.room+'/posReadyFlat']||'')+',t'+team;
+  db.ref('/').update(fullUpdate).then(function(){
+    console.log('[FCG] Full update written for team', team);
+    // Watch for both ready — poll every second as fallback
     var posRef=db.ref('rooms/'+ME.room+'/posReady');
-    posRef.on('value', function(snap){
-      var raw=snap.val()||{};
-      console.log('[FCG] posReady update:', JSON.stringify(raw));
-      if(raw.t1&&raw.t2){
+    var done=false;
+    function checkReady(raw){
+      if(done) return;
+      console.log('[FCG] posReady state:', JSON.stringify(raw));
+      if(raw&&raw.t1&&raw.t2){
+        done=true;
         posRef.off('value');
-        console.log('[FCG] Both ready! Loading opp positions...');
         _loadOppPosAndStart();
       }
-    });
+    }
+    posRef.on('value', function(snap){ checkReady(snap.val()||{}); });
+    // Fallback poll every 2s
+    var poll=setInterval(function(){
+      if(done){clearInterval(poll);return;}
+      db.ref('rooms/'+ME.room+'/posReady').once('value').then(function(s){
+        checkReady(s.val()||{});
+      });
+    }, 2000);
   }).catch(function(e){
-    console.error('[FCG] Error in confirmPos:', e);
-    alert('Erro ao confirmar: '+e.message);
+    console.error('[FCG] Error writing pos:', e);
+    alert('Erro Firebase: '+e.message+'. Verifique as regras do banco.');
     document.getElementById('pos-ok').disabled=false;
     document.getElementById('pos-wait').style.display='none';
   });
