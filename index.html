@@ -405,8 +405,10 @@ function onlineConfirmDeck(){
   // Watch for opponent deck ready, then go to positioning
   var deckRef=db.ref('rooms/'+ME.room+'/deckReady');
   deckRef.on('value', function(snap){
-    var dr=snap.val()||[false,false];
-    if(dr[0]&&dr[1]){
+    var raw=snap.val()||{};
+    var dr0=raw[0]||raw['0']||false;
+    var dr1=raw[1]||raw['1']||false;
+    if(dr0&&dr1){
       deckRef.off('value');
       document.getElementById('db-wait').style.display='none';
       _goToPos();
@@ -471,10 +473,12 @@ function _initAndGoToPos(){
   rPosScreen();
   // Watch for both pos ready
   _listen('rooms/'+ME.room+'/posReady', function(snap){
-    var pr=snap.val()||[false,false];
-    if(pr[0]&&pr[1]){
+    var raw=snap.val()||{};
+    var pr0=raw[0]||raw['0']||false;
+    var pr1=raw[1]||raw['1']||false;
+    if(pr0&&pr1){
       _stopListeners();
-      _loadOppPos();
+      _loadOppPosAndStart();
     }
   });
 }
@@ -498,8 +502,11 @@ function onlineConfirmPos(){
   // Watch for both ready
   var posRef=db.ref('rooms/'+ME.room+'/posReady');
   posRef.on('value', function(snap){
-    var pr=snap.val()||[false,false];
-    if(pr[0]&&pr[1]){
+    var raw=snap.val()||{};
+    // Firebase may return array as object {0:false,1:true}
+    var pr0=raw[0]||raw['0']||false;
+    var pr1=raw[1]||raw['1']||false;
+    if(pr0&&pr1){
       posRef.off('value');
       _loadOppPosAndStart();
     }
@@ -1078,7 +1085,7 @@ function rPosScreen(){
 }
 function rPosMiniField(team){
   var fld=document.getElementById('pos-field');fld.innerHTML='';
-  fld.style.cssText='border:2px solid #1a6b1a;border-radius:8px;overflow:hidden;background:#1a3d0a';
+  fld.style.cssText='border:2px solid #1a6b1a;border-radius:8px;overflow:hidden;background:#1a3d0a;width:100%;max-width:320px';
   // Rows for this team: team1 defends bottom (GOL row9 + rows 8,7,6,5), team2 defends top (GOL row0 + rows 1,2,3,4)
   // Each team only sees their own half: 1 GOL row + 4 field rows = 5 rows total
   var rows=team===1?[9,8,7,6,5]:[0,1,2,3,4];
