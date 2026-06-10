@@ -51,15 +51,15 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 /* PANEL */
 .panel{background:#161b22;border-radius:10px;padding:8px 10px;margin-top:6px;border:1px solid rgba(255,255,255,0.08)}
 .tabs{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
-.tab{padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);font-size:10px;cursor:pointer;color:rgba(255,255,255,0.6)}
+.tab{padding:7px 16px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);font-size:14px;cursor:pointer;color:rgba(255,255,255,0.6)}
 .tab.on{background:#0d47a1;color:#fff;border-color:#1976d2;font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
-.chip{font-size:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2px 8px;color:rgba(255,255,255,0.75)}
+.chip{font-size:13px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;color:rgba(255,255,255,0.9)}
 .chip b{color:#fff}
-.pinfo{font-size:10px;color:rgba(255,255,255,0.65);margin-bottom:5px;background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px;border:1px solid rgba(255,255,255,0.1);line-height:1.6}
+.pinfo{font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:6px;background:rgba(255,255,255,0.06);border-radius:6px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);line-height:1.6}
 .pinfo b{color:#fff}
 .btns{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
-.btn{padding:4px 9px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#fff;font-size:10px;cursor:pointer;transition:background .1s}
+.btn{padding:9px 16px;border-radius:7px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#fff;font-size:14px;cursor:pointer;transition:background .1s}
 .btn:hover:not(:disabled){background:rgba(255,255,255,0.16)}
 .btn:disabled{opacity:0.28;cursor:default}
 .btn.on{background:#0d47a1;border-color:#1976d2}
@@ -67,20 +67,20 @@ body{font-family:'Courier New',monospace;font-size:12px;background:#0d1117;color
 .btn.grn{background:rgba(27,94,32,0.55);border-color:#a5d6a7}
 .btn.warn{background:rgba(124,74,0,0.55);border-color:#ffe082}
 .btn.gold{background:rgba(150,120,0,0.55);border-color:#FFD700}
-.log{font-size:10px;color:rgba(255,255,255,0.55);max-height:80px;overflow-y:auto;line-height:1.7}
+.log{font-size:13px;color:rgba(255,255,255,0.55);max-height:200px;overflow-y:auto;line-height:1.9}
 .log div{border-bottom:1px solid rgba(255,255,255,0.05);padding:1px 0}
 .log div:first-child{color:#e6edf3;font-weight:700}
 
 /* CARDS */
 .hand-area{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
-.card{background:linear-gradient(135deg,#161b22,#1c2230);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 7px;font-size:9px;cursor:pointer;width:112px;position:relative;transition:transform .1s,border-color .1s;color:#e6edf3}
+.card{background:linear-gradient(135deg,#161b22,#1c2230);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;width:170px;position:relative;transition:transform .1s,border-color .1s;color:#e6edf3}
 .card:hover{transform:translateY(-3px);border-color:#58a6ff}
 .card.imm{border-left:3px solid #f78166}
 .card.aur{border-left:3px solid #bc8cff}
-.card .cn{font-weight:700;font-size:10px;margin-bottom:2px;color:#fff}
+.card .cn{font-weight:700;font-size:13px;margin-bottom:3px;color:#fff}
 .card .ct{font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:2px}
-.card .cd{font-size:8px;color:rgba(255,255,255,0.6);line-height:1.3}
-.card .cc{position:absolute;top:4px;right:5px;font-size:9px;font-weight:700;color:#58a6ff}
+.card .cd{font-size:10px;color:rgba(255,255,255,0.6);line-height:1.4}
+.card .cc{position:absolute;top:6px;right:8px;font-size:12px;font-weight:700;color:#58a6ff}
 .stag{display:inline-block;font-size:8px;padding:1px 4px;border-radius:8px;background:rgba(255,235,59,0.15);color:#ffe082;margin:1px}
 .rb{background:rgba(136,14,79,0.35);border:1px solid #f48fb1;border-radius:8px;padding:6px 10px;margin-bottom:5px;font-size:10px;color:#f8bbd9}
 .disc-banner{background:rgba(124,74,0,0.35);border:1px solid #ffe082;border-radius:8px;padding:6px 10px;margin-bottom:5px;font-size:10px;color:#ffe082;font-weight:700}
@@ -135,7 +135,7 @@ body{margin:0;padding:0}
 .game-wrap{display:grid;grid-template-columns:280px 1fr;gap:10px;flex:1;overflow:hidden;min-height:0}
 .field-col{display:flex;flex-direction:column;justify-content:center;overflow:hidden}
 .field-col .field-outer{max-width:280px;width:280px;flex-shrink:0}
-.panel-col{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.panel-col{display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0;min-width:300px}
 .panel-col .panel{flex:1}
 .myturn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;text-align:center;flex-shrink:0}
 .myturn.yes{background:rgba(86,211,100,0.15);color:#56d364;border:1px solid rgba(86,211,100,0.3)}
@@ -144,14 +144,6 @@ body{margin:0;padding:0}
 .pos-outer{display:grid;grid-template-columns:280px 1fr;gap:10px;padding:8px;height:100vh;box-sizing:border-box}
 .pos-field-col{display:flex;flex-direction:column;gap:6px}
 .pos-panel-col{overflow-y:auto}
-
-/* CARD TOOLTIP */
-.card{position:relative}
-.card-tooltip{display:none;position:fixed;z-index:1000;background:#1c2230;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 12px;max-width:220px;font-size:11px;color:#e6edf3;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.7);pointer-events:none}
-.card-tooltip .tt-name{font-weight:700;font-size:13px;color:#fff;margin-bottom:4px}
-.card-tooltip .tt-type{font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px}
-.card-tooltip .tt-desc{color:rgba(255,255,255,0.8)}
-.card:hover .card-tooltip{display:block}
 </style>
 </head><body>
 
@@ -292,21 +284,42 @@ body{margin:0;padding:0}
 <script>
 // Global tooltip for cards
 document.addEventListener('mouseover', function(e){
-  var card=e.target.closest('.card');
   var tt=document.getElementById('global-tooltip');
-  if(!card||!tt){if(tt)tt.style.display='none';return;}
-  var cn=card.querySelector('.cn'),cd=card.querySelector('.cd'),ct=card.querySelector('.ct'),cc=card.querySelector('.cc');
-  if(!cn)return;
-  tt.innerHTML='<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:3px">'+(cn?cn.textContent:'')+'</div>'
-    +'<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px">'+(ct?ct.textContent:'')+' · '+(cc?cc.textContent:'')+(card.classList.contains('imm')?' · Imediata':'')+'</div>'
-    +'<div style="color:rgba(255,255,255,0.85)">'+(cd?cd.textContent:'')+'</div>';
-  tt.style.display='block';
+  if(!tt) return;
+  // Works on .card (hand) and .db-row (deck builder)
+  var card=e.target.closest('.card');
+  var dbrow=e.target.closest('.db-row');
+  if(card){
+    var cn=card.querySelector('.cn'),cd=card.querySelector('.cd'),ct=card.querySelector('.ct'),cc=card.querySelector('.cc');
+    if(!cn){tt.style.display='none';return;}
+    var typeLabel=card.classList.contains('imm')?'Imediata':card.classList.contains('aur')?'Aura':'Comum';
+    tt.innerHTML='<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:3px">'+(cn.textContent)+'</div>'
+      +'<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px">'+typeLabel+(cc?' · '+cc.textContent:'')+'</div>'
+      +'<div style="color:rgba(255,255,255,0.85)">'+(cd?cd.textContent:'')+'</div>';
+    tt.style.display='block';
+  } else if(dbrow){
+    // Deck builder row — find card data from POOL by name
+    var nameEl=dbrow.querySelector('b');
+    if(!nameEl){tt.style.display='none';return;}
+    var cardName=nameEl.textContent;
+    var poolCard=POOL.find(function(c){return c.name===cardName;});
+    if(!poolCard){tt.style.display='none';return;}
+    var tn=poolCard.type==='a'?'Aura':poolCard.type==='i'?'Imediata':'Comum';
+    tt.innerHTML='<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:3px">'+poolCard.name+'</div>'
+      +'<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:6px">'+tn+' · '+poolCard.cost+'⚡'+(poolCard.paral?' · Paralisa!':'')+'</div>'
+      +'<div style="color:rgba(255,255,255,0.85)">'+poolCard.desc+'</div>';
+    tt.style.display='block';
+  } else {
+    tt.style.display='none';
+  }
 });
 document.addEventListener('mouseout', function(e){
   var card=e.target.closest('.card');
-  if(!card)return;
-  var tt=document.getElementById('global-tooltip');
-  if(tt)tt.style.display='none';
+  var dbrow=e.target.closest('.db-row');
+  if(!card&&!dbrow){
+    var tt=document.getElementById('global-tooltip');
+    if(tt)tt.style.display='none';
+  }
 });
 document.addEventListener('mousemove', function(e){
   var tt=document.getElementById('global-tooltip');
@@ -2209,8 +2222,7 @@ function render(){
       c2.className='card'+(card.type==='i'?' imm':card.type==='a'?' aur':'');
       if(G.discardPending&&G.discardPending.teamIdx===hi)c2.classList.add('disc-pick');
       var tn=card.type==='a'?'AURA':card.type==='i'?'IMEDIATA':'COMUM';
-      c2.innerHTML='<div class="cn">'+card.name+'</div><div class="ct">'+tn+'</div><div class="cd">'+card.desc+'</div><div class="cc">'+card.cost+'⚡</div>'
-        +'<div class="card-tooltip"><div class="tt-name">'+card.name+'</div><div class="tt-type">'+tn+' · '+card.cost+'⚡'+(card.paral?' · Paralisa!':'')+'</div><div class="tt-desc">'+card.desc+'</div></div>';
+      c2.innerHTML='<div class="cn">'+card.name+'</div><div class="ct">'+tn+'</div><div class="cd">'+card.desc+'</div><div class="cc">'+card.cost+'⚡</div>';
       if(G.discardPending&&G.discardPending.teamIdx===hi){
         c2.onclick=function(){discardCard(card.uid,hi);};
       } else if(hi===ti()&&!G.rw){
