@@ -363,8 +363,8 @@ function joinRoom(){
 function _goToDeck(){
   document.getElementById('lobby').style.display='none';
   G.dbD=[[],[]];
+  G.dbT=ME.team-1; // ensure rDB() edits MY team's deck
   showScreen('db-screen');
-  // Show correct team name in deck builder
   document.getElementById('db-tname').textContent=ME.team===1?'Time Azul':'Time Vermelho';
   rDB();
   // Watch for other player's deck ready
@@ -393,11 +393,18 @@ function onlineConfirmDeck(){
 // POS PHASE
 // ==============================================
 function _initAndGoToPos(){
-  // Initialize full game state (decks, hands)
+  // Each player only has their own deck locally
+  // Shuffle my deck; opponent's deck is managed on their client
+  var myIdx=ME.team-1;
+  var oppIdx=ME.team===1?1:0;
+  // Use a placeholder for opp deck (will be overwritten by their pushG)
+  if(!G.dbD[oppIdx]||!G.dbD[oppIdx].length){
+    G.dbD[oppIdx]=G.dbD[myIdx].slice(); // placeholder
+  }
   G.deck=[shuffle(G.dbD[0].slice()),shuffle(G.dbD[1].slice())];
   G.hand=[[],[]]; G.disc=[[],[]];
   G.c10={}; G.usedDrib={}; G.marcimplAttached={}; G.reserve=[0,0];
-  draw(0,3); draw(1,3);
+  draw(myIdx,3); // only draw for my team — opp draws on their client
   // Set up players
   G.pl=[];
   PP1.forEach(function(pd){
