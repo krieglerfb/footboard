@@ -483,7 +483,7 @@ function _initAndGoToPos(){
 
 function onlineConfirmPos(){
   var team=ME.team;
-  if(G.pl.filter(function(p){return p.team===team&&p.r<0;}).length>0){
+  if(!G.pl||G.pl.filter(function(p){return p.team===team&&p.r<0;}).length>0){
     alert('Posicione todos!'); return;
   }
   document.getElementById('pos-ok').disabled=true;
@@ -493,25 +493,36 @@ function onlineConfirmPos(){
   G.pl.filter(function(p){return p.team===team;}).forEach(function(p){
     myPos[p.id]={r:p.r,c:p.c};
   });
-  var update={};
-  update['pos/t'+team]=myPos;
-  update['posReady/t'+team]=true; // use named keys, not array indices
-  db.ref('rooms/'+ME.room).update(update);
-  // Watch for both ready
-  var posRef=db.ref('rooms/'+ME.room+'/posReady');
-  posRef.on('value', function(snap){
-    var raw=snap.val()||{};
-    // Check both teams confirmed using named keys
-    if(raw.t1&&raw.t2){
-      posRef.off('value');
-      _loadOppPosAndStart();
-    }
+  console.log('[FCG] Confirming pos for team', team, myPos);
+  // Write positions AND ready flag atomically
+  db.ref('rooms/'+ME.room+'/pos/t'+team).set(myPos).then(function(){
+    return db.ref('rooms/'+ME.room+'/posReady/t'+team).set(true);
+  }).then(function(){
+    console.log('[FCG] posReady/t'+team+' set to true');
+    // Now watch for both ready
+    var posRef=db.ref('rooms/'+ME.room+'/posReady');
+    posRef.on('value', function(snap){
+      var raw=snap.val()||{};
+      console.log('[FCG] posReady update:', JSON.stringify(raw));
+      if(raw.t1&&raw.t2){
+        posRef.off('value');
+        console.log('[FCG] Both ready! Loading opp positions...');
+        _loadOppPosAndStart();
+      }
+    });
+  }).catch(function(e){
+    console.error('[FCG] Error in confirmPos:', e);
+    alert('Erro ao confirmar: '+e.message);
+    document.getElementById('pos-ok').disabled=false;
+    document.getElementById('pos-wait').style.display='none';
   });
 }
 
 function _loadOppPosAndStart(){
+  console.log('[FCG] _loadOppPosAndStart called');
   db.ref('rooms/'+ME.room+'/pos').once('value').then(function(snap){
     var pos=snap.val()||{};
+    console.log('[FCG] pos data:', JSON.stringify(pos));
     // Apply BOTH teams' positions (in case we got here before reading opp)
     ['t1','t2'].forEach(function(tk){
       if(pos[tk]){
