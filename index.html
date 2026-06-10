@@ -236,6 +236,7 @@ body{margin:0;padding:0}
       </div>
       <div id="pos-wait" style="display:none;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.45)">
         <span class="dot"></span>Aguardando adversário posicionar...
+        <br><button class="btn grn" style="margin-top:8px;display:none" id="btn-check-pos" onclick="checkPosManually()">Verificar →</button>
       </div>
     </div>
   </div>
@@ -488,6 +489,10 @@ function onlineConfirmPos(){
   }
   document.getElementById('pos-ok').disabled=true;
   document.getElementById('pos-wait').style.display='block';
+  setTimeout(function(){
+    var btn=document.getElementById('btn-check-pos');
+    if(btn) btn.style.display='inline-block';
+  }, 5000);
   // Save my positions to Firebase
   var myPos={};
   G.pl.filter(function(p){return p.team===team;}).forEach(function(p){
@@ -518,6 +523,18 @@ function onlineConfirmPos(){
   });
 }
 
+function checkPosManually(){
+  console.log('[FCG] Manual check triggered');
+  db.ref('rooms/'+ME.room+'/posReady').once('value').then(function(snap){
+    var raw=snap.val()||{};
+    console.log('[FCG] Manual posReady check:', JSON.stringify(raw));
+    if(raw.t1&&raw.t2){
+      _loadOppPosAndStart();
+    } else {
+      alert('Adversário ainda não confirmou. Estado: '+JSON.stringify(raw));
+    }
+  });
+}
 function _loadOppPosAndStart(){
   console.log('[FCG] _loadOppPosAndStart called');
   db.ref('rooms/'+ME.room+'/pos').once('value').then(function(snap){
